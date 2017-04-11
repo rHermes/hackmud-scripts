@@ -3,7 +3,6 @@ function(ctx, args) {
 
 	// TODO(rhermes): implement! Sort first on loaded, then on name and then on
 	// power of the upgrade.
-	// return JSON.stringify(#s.sys.upgrades({info: [1,2]}));
 	var f_cmp;
 
 	// This is the compare function
@@ -37,6 +36,7 @@ function(ctx, args) {
 					case "w4rn":
 					case "w4rn_er":
 					case "CON_SPEC":
+					case "sn_w_glock":
 						return "lock";
 					
 					default:

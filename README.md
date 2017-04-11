@@ -7,3 +7,8 @@ project, including maybe minifiers, but for now there is only the raw scripts.
 
 - _q.qrv2 - A QR decoder with errasure correction support.
 - _q.love - A WIP solver. It is focused on npc solving.
+
+
+## TODO
+
+- Rewrite _q.upgrades_sort completly.

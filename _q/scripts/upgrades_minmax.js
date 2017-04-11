@@ -17,7 +17,7 @@ function(ctx, a) { // type:""
 			f_cmp = (a,b) => b.chars - a.chars;
 			break;
 		case "script_slot":
-		case "public_script_slot":
+		case "public_script":
 			f_max = (u) => u.slots;
 			f_cmp = (a,b) => b.slots - a.slots;
 			break;

@@ -653,7 +653,7 @@ function(ctx, a) {
 				args: _S.args, 
 				loc_calls: _S.msgs.length, 
 				ts_total: _S.ts_end - _S.ts_start,
-				ts_loc_calls: _S.ts_calls.reduce((a,c) => a+c),
+				ts_loc_calls: _S.ts_calls.reduce((a,c) => a+c, 0),
 				ts_locks: _S.ts_locks
 			};
 		},

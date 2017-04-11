@@ -8,9 +8,13 @@ function(ctx, a) {
 			// Name is the location name.
 			return {
 				_id: _K.DB_PREFIX + loc_name,
+				_type: _K.DB_PREFIX,
 				name: loc_name,
 				started: Date.now(),
 				ended: null,
+
+				// Has the run been invalidated since the last time we ran it.
+				invalid: false,
 
 				// External call related.
 				loc_calls: [],
