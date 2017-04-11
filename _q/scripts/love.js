@@ -6,7 +6,7 @@ function(ctx, a) {
 
 	// Import libraries.
 	const NAV = #s._q.liblove_navigate();
-
+	const HARVEST = #s._q.liblove_harvest();
 	try {
 		var start = Date.now();
 		var kiwi =  NAV.solve(a.t);
