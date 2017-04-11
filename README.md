@@ -74,3 +74,15 @@ and so on. It may also feature market searching tools.
 #### TODO
 
 ##### Everything
+I haven't even started writing this yet :P
+
+##### Market listing fixer
+This would make sure that you have the best `items / listings` ratio possible.
+
+##### General purpose sys.upgrades reorder.
+Something that would provide the minimal amount of reorder moves to get it into
+a sorted state. This will involve finding the longest increasing subsequence
+and then ordering everything else around that.
+
+I've attempted this before, but my implementation of the actual moving around was
+buggy.
