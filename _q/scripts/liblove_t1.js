@@ -101,20 +101,4 @@ function(ctx, a) {
 	};
 
 	return T1;
-/*
-
-		solve_c003: t => {
-			for (var i = 0; i < _S.c_colors.length; i++) {
-				_S.args["c003"] = _S.c_colors[i];
-				_S.args["c003_triad_1"] = _S.c_colors[(i+3)%8];
-				_S.args["c003_triad_2"] = _S.c_colors[(i+5)%8];
-				_S.call_loc(t);
-
-				if (_S.is_done() || !_S.lm.endsWith("name."))
-					break;
-			}			
-		},
-	return { ok:false };
-	*/
-
 }

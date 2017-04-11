@@ -18,6 +18,18 @@ kind of setup is shamelessly stolen from n00bish.
 
 #### TODO
 
+##### Escrow services integration.
+This might be a moot point since the solver is open source, but since it requires
+some script slots to use, there might end up being some publically hosted version
+which some people use rather than run their own. For that purpose, there should
+be an option to add a charge per unlock feature, that require some sort of payment
+for each solve.
+
+This would be something the hoster of the script would have to turn on and it should
+support all the common escrow features, like `escrow`, `pay.pal` and `jade.vita`.
+For the two latter one would need to assess the danger of one or two of these scripts
+either going away or going rouge.
+
 ##### Invalidation Support
 Currently the solver doesn't have any idea if the previous state no longer matches
 the one currenty present. This will be tricky to get right, since I'm aiming for

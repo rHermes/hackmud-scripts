@@ -18,9 +18,9 @@ vd
 jade.vita {{withdraw:"{0}", instant:true}}
 t2ll
 db {f: [{_k: "t2_loc_idx"},{}]}
-sss
-sys.upgrades {filter: "script_space"}
 kkk
 dtr.market_watch { name: "/char_count.*/", sort: {rarity: -1} }
-upl
-#up liblove_{0}
+ldd
+sudo.ldd{{t:#s.{0},a:#s.l.a,b:#s.l.b,c:#s.l.c,d:#s.l.d,e:#s.l.e,f:#s.l.f,g:#s.l.g,h:#s.l.h,i:#s.l.i,j:#s.l.j,k:#s.l.k,l:#s.l.l,m:#s.l.m,n:#s.l.n}}
+empty1
+pay.pal {deposit: "all", s: #s.accts.xfer_gc_to}
