@@ -1,5 +1,5 @@
 function(ctx, a) {
-	let _T2 = {
+	let T2 = {
 		solve_CON_SPEC: t => {
 					_S.args["CON_SPEC"] = "";
 					_S.call_loc(t);
@@ -28,4 +28,6 @@ function(ctx, a) {
 					}
 		},
 	};
+
+	return T2;
 }

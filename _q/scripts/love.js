@@ -6,11 +6,10 @@ function(ctx, a) {
 
 	// Import libraries.
 	const NAV = #s._q.liblove_navigate();
-	
 
 	try {
-		return JSON.stringify(s);
+		return NAV.solve(a.t);
 	} catch (e) {
-		return JSON.stringify(e);
+		return "THERE WAS AN ERROR!";
 	}
 }

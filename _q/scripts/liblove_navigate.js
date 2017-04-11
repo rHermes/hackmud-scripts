@@ -5,16 +5,11 @@ function(ctx, a) {
 	// IMPORT libraries.
 	const STATE = #s._q.liblove_state();
 	const T1 = #s._q.liblove_t1();
+	const T2 = #s._q.liblove_t2();
 
 
 	let NAV = {
 		// === UTIL ===
-		is_done: (s) => {
-			let prt = STATE.lm(s).split('\n');
-		
-			return (prt.length > 0 ) && (prt[0] === "`NLOCK_UNLOCKED`" && prt[prt.length-1] === "Connection terminated.");
-		},
-
 		identify: (s) => {
 			let lines = STATE.lm(s).split('\n');
 			if (lines[lines.length-2] !== "`VLOCK_ERROR`")
@@ -34,60 +29,43 @@ function(ctx, a) {
 				s = STATE.create(t.name);
 			}
 
+			// Check to see if we need to call the loc once.
+			if (s.loc_calls.length === 0) {
+				STATE.call_loc(s, t);
+			}
+			
 			// TODO(rhermes): Check here if ended !== null. If it isn't,
 			// then we have already solved this.
 
 			while (!STATE.is_done(s)) {
-				// We check if the last lock is solved or not. If it is, then we have to
-				// make a call.
-
-				
-				const lock_name = NAV.identify(s);
-				const solve_func = T1["solve_" + lock_name] || T2["solve_" + lock_name];
-
-				if (solve_func === undefined) {
-					throw new Error("Lock " + lock_name + " not implemented yet!");
+				// If we have no locks or we the last one was solved, we need to
+				// identify.
+				if ((s.locks.length === 0) || STATE.ll(s).solved) {
+					const lock_name = NAV.identify(s);
+					let lck = {
+						name: lock_name,
+						args: {},
+						ctx: {},
+						solved: false,
+					};
+					s.locks.push(lck);
 				}
 
-				// Check if the lock is open or not.
+				let l = STATE.ll(s);
 
+				// Now we find the solve function and go ahead.
+				let solve_func = T1["solve_" + l.name] || T2["solve_" + l.name];
+			
+				if (solve_func === undefined) {
+					return "Lock " + l.name + " not implemented yet!";
+				}
 				// Apply solve func. This is where timing would be added.
-				solve_func(s, t);
-
+				solve_func(s,l,t)
+				l.solved = true;
 			}
-
-			while (!_S.is_done()) {
-				var lock_name = _S.identify();
-				var solve_func = _S["solve_" + lock_name];
-				
-				if (solve_func === undefined) {
-					throw new Error("Lock " + lock_name + " not implemented yet!");
-				}
-				_S
-
-				// Here we update. This ensures that we can use the lm check to ensure that
-				// everthing is clean.
-				_S.update_db(t);
-
-				var ts_s_lock = Date.now();
-				solve_func(t);
-				var ts_e_lock = Date.now();
-				_S.locks.push(lock_name);
-				_S.ts_locks.push(ts_e_lock-ts_s_lock);
-			}
-
-			_S.ts_end = Date.now();
-
-			return {
-				locks: _S.locks, 
-				args: _S.args, 
-				loc_calls: _S.msgs.length, 
-				ts_total: _S.ts_end - _S.ts_start,
-				ts_loc_calls: _S.ts_calls.reduce((a,c) => a+c),
-				ts_locks: _S.ts_locks
-			};
+			s.ended = Date.now();
+			return s;
 		},
-	};
 	};
 	return NAV;
 }
