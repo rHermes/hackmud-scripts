@@ -8,7 +8,11 @@ function(ctx, a) {
 	const NAV = #s._q.liblove_navigate();
 
 	try {
-		return NAV.solve(a.t);
+		var start = Date.now();
+		var kiwi =  NAV.solve(a.t);
+		var end = Date.now();
+
+		return {ts: end-start, s: kiwi};
 	} catch (e) {
 		return "THERE WAS AN ERROR!";
 	}

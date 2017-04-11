@@ -34,9 +34,6 @@ function(ctx, a) {
 				STATE.call_loc(s, t);
 			}
 			
-			// TODO(rhermes): Check here if ended !== null. If it isn't,
-			// then we have already solved this.
-
 			while (!STATE.is_done(s)) {
 				// If we have no locks or we the last one was solved, we need to
 				// identify.
@@ -62,8 +59,13 @@ function(ctx, a) {
 				// Apply solve func. This is where timing would be added.
 				solve_func(s,l,t)
 				l.solved = true;
+
+				// We store here too, just to be nice.
+				STATE.store(s);
 			}
-			s.ended = Date.now();
+			s.ended = s.ended || Date.now();
+
+			STATE.store(s);
 			return s;
 		},
 	};

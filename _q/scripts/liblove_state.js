@@ -77,8 +77,13 @@ function(ctx, a) {
 
 			// Now add it to the location calls.
 			// THis is just for now
-			s.loc_calls_args.push(JSON.stringify(args));
+			s.loc_calls_args.push(args);
 			s.loc_calls.push(t.call(args));
+
+			// We save here every 2 calls.
+			if (s.loc_calls.length % 2 == 0)  {
+				STATE.store(s);
+			}
 		},
 	};
 
