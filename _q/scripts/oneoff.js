@@ -122,6 +122,6 @@ function(ctx, a) {
 		}
 	}
 
-	//return outs.join("\n");
+	return outs.join("\n");
 	//return s.corrupt(outs.join("\n"), 5);
 }

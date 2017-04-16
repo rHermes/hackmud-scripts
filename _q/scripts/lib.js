@@ -38,52 +38,48 @@ function(ctx, a) {
 		move_order: (xs) => {
 			// This generates one of many optimal solutions for sorting XS
 			// using only pick and insert moves.
-			let ys = xs.slice();
-			
-			let moves = [];
-			
-			// Figure out which elements repeat.
+
+
 
 			// here we figure out the longest increasing subsequence.
-			let liss = (X) => {
-				// Takes a list of numbers as input. Returns the longest increasing subsequence.
-				let P = {};
-				let M = {0: 0};
-				let L = 0;
-				for (let i = 0; i < X.length; i++) {
-					let lo = 1;
-					let hi = L;
-					
-					while (lo <= hi) {
-						const mid = Math.ceil((lo+hi)/2);
-						if (X[M[mid]] < X[i])
-							lo = mid+1;
-						else
-							hi = mid-1;
-					}
-					
-					P[i] = M[lo-1];
-					M[lo] = i;
-					L = Math.max(lo, L);
-				}
-				let S = [];
-				let k = M[L];
-				for (let i = L-1; i > -1; i--) {
-					S.unshift(X[k]);
-					k = P[k];
-				}
-				return S;
-			}
+			let P = new Uint32Array(xs.length);
+			let M = new Uint32Array(xs.length+1);
+			let L = 0;
 
-			const stone = liss(ys);
-			const sstone = new Set(stone);
+			for (let i = 0; i < xs.length; i++) {
+				let lo = 1;
+				let hi = L;
+				
+				while (lo <= hi) {
+					const mid = Math.ceil((lo+hi)/2);
+					if (xs[M[mid]] < xs[i])
+						lo = mid+1;
+					else
+						hi = mid-1;
+				}
+				
+				P[i] = M[lo-1];
+				M[lo] = i;
+				L = Math.max(lo, L);
+			}
+			let S = [];
+			let k = M[L];
+			for (let i = L-1; i > -1; i--) {
+				S.unshift(xs[k]);
+				k = P[k];
+			}
 			
 			let tobesorted = [];
 			for (let s of xs) {
-				if (!sstone.has(s)) {
+				if (S.indexOf(s) === -1) {
 					tobesorted.push(s);
 				}
 			}
+
+			let moves = [];
+
+			// We make a shallow copy, so as to not change the actuall input array.
+			let ys = xs.slice();
 			
 			// This is the part where we do the inserts.
 			for (let s of tobesorted) {
@@ -92,7 +88,7 @@ function(ctx, a) {
 				
 				// Now we need to find which of the
 				let st = ys[0];
-				for (let k of stone) {
+				for (let k of S) {
 					if (s < k) {
 						break;
 					}
