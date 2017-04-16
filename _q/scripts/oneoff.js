@@ -2,24 +2,14 @@ function(ctx, a) {
 	let s = #s.scripts.lib();
 	let s_p = Object.getOwnPropertyNames(s);
 
+	let LIB = #s._q.lib();
+	let D = #s.dtr.lib();
+
 	var outs = [];
 	for (let p of s_p) {
 		outs.push("s." + p + ":\t\t\t" + typeof s[p] + " : \t\t\t" + s[p]);
 	}
 
-	var n_to_gc = (n) => {
-		let ret = "";
-		if (n == 0) {return "0GC"};
-		if (n < 0) {ret += "-"; n = -n;}
-		if (n > 1000000000000000-1) {ret += Math.floor(n/1000000000000000) + "Q"; n %= 1000000000000000}
-		if (n > 1000000000000-1) {ret += Math.floor(n/1000000000000) + "T"; n %= 1000000000000}
-		if (n > 1000000000-1) {ret += Math.floor(n/1000000000) + "B"; n %= 1000000000}
-		if (n >	1000000-1) {ret += Math.floor(n/1000000) + "M"; n %= 1000000}
-		if (n > 1000-1) {ret += Math.floor(n/1000) + "K"; n %= 1000}
-		if (n) {ret += n}
-		return ret + "GC";
-	};
-	
 	var tests_n_to_gc = [
 		0,
 		-1,
@@ -43,13 +33,13 @@ function(ctx, a) {
 	// the unit test.
 	for (let test of tests_n_to_gc) {
 		let simp = s.to_gc_str(test);
-		let mimp = n_to_gc(test);
+		let mimp = LIB.num_to_gc(test);
 
 		if (simp !== mimp) {
 			outs.push("FAILED: Expected " + simp + " got " + mimp);
 		}
 	}
-	return outs.join("\n");
+//	return outs.join("\n");
 
 	let solve_CON_SPEC = (t) => {
 		// First we need to define the alphabeth.
@@ -107,6 +97,31 @@ function(ctx, a) {
 		}
 	}
 
-	return outs.join("\n");
+	//return outs.join("\n");
+
+	// Reorder array	
+	outs = [];
+	let tests_reorder = [
+		[0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 16, 15, 17],
+		[ 7, 14, 15, 4, 20, 12, 10, 5, 11, 19, 13, 17, 0, 6, 2, 8, 3, 16, 18, 9, 1 ],
+	];
+	
+
+
+	for (let test of tests_reorder) {
+		let simp = D.generateReorderArray(test);
+		let mimp = LIB.move_order(test);
+
+		outs.push(simp.length);
+		outs.push(mimp.length);
+		outs.push("\n");
+		continue;
+
+		if (simp !== mimp) {
+			outs.push("FAILED '" + test.in + "': Expected '" + simp + "' got '" + mimp + "'");
+		}
+	}
+
+	//return outs.join("\n");
 	//return s.corrupt(outs.join("\n"), 5);
 }

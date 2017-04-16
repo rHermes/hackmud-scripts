@@ -26,10 +26,10 @@ function(ctx, a) { // type:""
 	}
 
 	// Get list of upgrades -> filter
-	var up_idx = #s.sys.upgrades({}).filter((e) => e.name.startsWith(a.type));
+//	var up_idx = #s.sys.upgrades({}).filter((e) => e.name.startsWith(a.type));
 
 	// Get list of actuall upgrades -> sort.
-	var up_val = #s.sys.upgrades({info: up_idx.map((e) => e.i)}).sort(f_cmp);
+	var up_val = #s.sys.upgrades({full: true}).filter((e) => e.name.startsWith(a.type)).sort(f_cmp);
 	// l.log(up_val);
 
 	
@@ -46,8 +46,8 @@ function(ctx, a) { // type:""
 		if (!upg.loaded) {
 			var tmp = loaded.pop();
 //			l.log("Replacing " + tmp.i + " with " + upg.i);
-			#s.sys.upgrades({"unload": tmp.i});
-			#s.sys.upgrades({"load": upg.i});
+			#s.sys.manage({"unload": tmp.i});
+			#s.sys.manage({"load": upg.i});
 		}
 	}
 

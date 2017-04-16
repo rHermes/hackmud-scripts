@@ -15,7 +15,11 @@ function(context, args)
 	// T1 :
 	// T2 :
 	// T3 : 100MGC, 128 upgrade slots
-	// T4 : 1BGC, 256 upgrade slots
+	// T4 : 1BGC, 256 upgrade slots, 64 Equipable
+
+	// DTR STUFF
+	// dtr.market_watch{macros:true}
+	// dtr.market_watch{name:"/char_count/",sort:{chars:-1, cost: 1},buy:#s.market.buy,buy_order:{order:"sort",max_items_gc:"10BGC",max_items:100}}
 
 	
 	// === TODO ===

@@ -6,7 +6,7 @@ function(ctx, a) {
 	
 	try {
 		var start = Date.now();
-		var kiwi =  NAV.solve(a.t);
+		var kiwi =  HARVEST.solve(a.t);
 		var end = Date.now();
 
 		return {ts: end-start, s: kiwi};
