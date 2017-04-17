@@ -122,6 +122,36 @@ function(ctx, a) {
 		}
 	}
 
-	return outs.join("\n");
+	// return outs.join("\n");
+
+	outs = [];
+
+	// Generate test hell suite.
+
+	let test_suite = [];
+
+	// Entire sentence + single word.
+	for (let col of s.colors) {
+		test_suite.push(
+			"`" + col + "This is a good sentence`",
+			"This is a `" + col + "good` sentence"
+		);
+	}
+
+	// Rainbow.
+	test_suite.push(
+		Array.from(s.colors).map(c => "`"+c +c+ "`").join("")
+	);
+
+	const test_suite_str = test_suite.join("\n");
+
+	let deco = LIB.decorrupt(() => s.corrupt(test_suite_str, 4).split('\n'));
+	
+	if (deco.join('\n') !== test_suite_str) {
+		return deco;
+	}
+
+	return outs;
+
 	//return s.corrupt(outs.join("\n"), 5);
 }

@@ -23,7 +23,6 @@ function(ctx, a) {
 			const LS = #s.scripts.lowsec();
 
 			// This is for T1, T2 and T3
-
 			let corp_names = [FS, [].concat(HS,MS), LS].map(c => {
 				return c.filter(u => LIST.CORP_NAMES.indexOf(u.split(".")[0]) !== -1);
 			});

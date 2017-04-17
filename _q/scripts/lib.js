@@ -27,19 +27,46 @@ function(ctx, a) {
 			// The algorithm works by diffing the output of the two calls. This is
 			// harder than it sounds, as we want to preserve color information. The
 			// trick is to think in units of 1 display character rather than 1 char.
-			
-			// This can be done, by 
-			
-			// TODO(rhermes): Setup some kind of hell harness test for this function.
-			
+
+			// This can be torpedoed by putting the character æ in the output, but
+			// that is not a real problem, as the character is rare and cannot be 
+			// displayed in the game.
+
+			const corrupt_re = /`[a-zA-Z][¡¢£¤¥¦§¨©ª]`/g;
+
 			let cur = f();
+			while (1) {
+				let newl = cur.map(u => u.replace(corrupt_re, "æ"));
+				let done = newl.every(u=> u.indexOf("æ") === -1);
+				if (done) {
+					break;
+				}
+				// assing it to the cur;
+				cur = newl;
+
+				let ncur = f();
+				let new_newl = ncur.map(u => u.replace(corrupt_re, "æ"));
+
+				// Now we do a diff and update cur appropriatly.
+				let diffcur = cur.map((l,li) => {
+					return l.split('').map((c, ci) => {
+						if (c == "æ" && new_newl[li].split('')[ci] !== "æ" ) {
+							return new_newl[li].split('')[ci];
+						}
+						return c;
+					}).join('');
+				});
+
+				cur = diffcur;
+			}
+
+
+			return cur;
 		},
 
 		move_order: (xs) => {
 			// This generates one of many optimal solutions for sorting XS
 			// using only pick and insert moves.
-
-
 
 			// here we figure out the longest increasing subsequence.
 			let P = new Uint32Array(xs.length);
