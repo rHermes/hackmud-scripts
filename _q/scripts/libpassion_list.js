@@ -2,7 +2,7 @@ function(ctx, a) {
 	let LIST = {
 		DB_PREFIX: "__libpassion_list_",
 
-		CORP_NAMES: [
+		T1_CORP_NAMES: [
 			"amal_robo","archaic","bluebun","bunnybat_hut","context","core","cyberdine",
 			"empty_nest","futuretech","halperyon","kill_9_1","kill_bio","legion_bible",
 			"legion_intl","light","lowell_extermination","marco_polo","merrymoor_pharma",
@@ -10,6 +10,15 @@ function(ctx, a) {
 			"setec_gas","sn_w","soylentbean","suborbital_airlines","tandoori",
 			"the_holy_checksum","tyrell","turing_testing","vacuum_rescue","welsh_measles_info",
 			"weyland","world_pop"
+		],
+
+		T2_CORP_NAMES: [
+			"bunnybat_hut", "cyberdine", "setec_gas", "soylentbean", "suborbital_airlines",
+			"tandoori", "tyrell", "weyland"
+		],
+
+		T3_CORP_NAMES: [
+			"archaic", "context", "core", "futuretech", "halperyon", "light", "nuutec", "sn_w"
 		],
 
 		get_npcs: () => {
@@ -23,8 +32,8 @@ function(ctx, a) {
 			const LS = #s.scripts.lowsec();
 
 			// This is for T1, T2 and T3
-			let corp_names = [FS, [].concat(HS,MS), LS].map(c => {
-				return c.filter(u => LIST.CORP_NAMES.indexOf(u.split(".")[0]) !== -1);
+			let corp_names = [FS, [].concat(HS,MS), LS].map((c,i) => {
+				return c.filter(u => LIST["T"+(i+1)+"_CORP_NAMES"].indexOf(u.split(".")[0]) !== -1);
 			});
 
 			const c_state = {
