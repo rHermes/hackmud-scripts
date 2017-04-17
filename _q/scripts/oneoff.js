@@ -152,6 +152,4 @@ function(ctx, a) {
 	}
 
 	return outs;
-
-	//return s.corrupt(outs.join("\n"), 5);
 }

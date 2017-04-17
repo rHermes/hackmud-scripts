@@ -34,32 +34,24 @@ function(ctx, a) {
 
 			const corrupt_re = /`[a-zA-Z][¡¢£¤¥¦§¨©ª]`/g;
 
-			let cur = f();
-			while (1) {
-				let newl = cur.map(u => u.replace(corrupt_re, "æ"));
-				let done = newl.every(u=> u.indexOf("æ") === -1);
-				if (done) {
-					break;
-				}
-				// assing it to the cur;
-				cur = newl;
+			// This chain of function is run on every output.
+			let f_get = () => f().map(u => u.replace(corrupt_re, "æ"));
+			
+			let cur = f_get();
+			while (!cur.every(u=> u.indexOf("æ") === -1)) {
+				let ncur = f_get();
 
-				let ncur = f();
-				let new_newl = ncur.map(u => u.replace(corrupt_re, "æ"));
-
-				// Now we do a diff and update cur appropriatly.
-				let diffcur = cur.map((l,li) => {
+				// This is the diff. It works by running through each character
+				// in the output. That makes it kind of slow, but since v8 is fast
+				// and external calls are slow, this works just fine.
+				cur = cur.map((l,li) => {
+					let nls = ncur[li].split('');
 					return l.split('').map((c, ci) => {
-						if (c == "æ" && new_newl[li].split('')[ci] !== "æ" ) {
-							return new_newl[li].split('')[ci];
-						}
-						return c;
+						if (c == "æ" && nls[ci] !== "æ" ) {	return nls[ci]; }
+						else { return c; }
 					}).join('');
 				});
-
-				cur = diffcur;
 			}
-
 
 			return cur;
 		},
