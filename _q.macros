@@ -28,3 +28,9 @@ ldd
 sudo.ldd{{t:#s.{0},a:#s.l.a,b:#s.l.b,c:#s.l.c,d:#s.l.d,e:#s.l.e,f:#s.l.f,g:#s.l.g,h:#s.l.h,i:#s.l.i,j:#s.l.j,k:#s.l.k,l:#s.l.l,m:#s.l.m,n:#s.l.n}}
 empty1
 pay.pal {deposit: "all", s: #s.accts.xfer_gc_to}
+psr
+db {r: {_type: "__libpassion_state_"}}
+plu
+passion {cmd: "list_update"}
+pl
+passion {cmd: "list"}

@@ -31,9 +31,10 @@ function(ctx, a) {
 			const MS = #s.scripts.midsec();
 			const LS = #s.scripts.lowsec();
 
-			// This is for T1, T2 and T3
+			// This is for T1, T2 and T3. The lookup is ugly, but sue me.
 			let corp_names = [FS, [].concat(HS,MS), LS].map((c,i) => {
-				return c.filter(u => LIST["T"+(i+1)+"_CORP_NAMES"].indexOf(u.split(".")[0]) !== -1);
+				const LST = LIST["T"+(i+1)+"_CORP_NAMES"];
+				return c.filter(u => LST.indexOf(u.split(".")[0]) !== -1);
 			});
 
 			const c_state = {

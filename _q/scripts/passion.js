@@ -14,9 +14,12 @@ function(ctx, a) {
 			return LIST.get_npcs();
 		case "list_update":
 			return LIST.update_db();
-		case "t1_harvest":
+		case "harvest_t1":
 			return HARVEST_T1.harvest(a.t);
+		case "cmds_t1":
+			let npcs = LIST.get_npcs();
+			return npcs.t1.map(u => '_q.passion {cmd: "harvest_t1", t: #s.' + u + '}');
 		default:
-			return 'Available commands are: t1_harvest, list, list_update';
+			return 'Available commands are: harvest_t1, cmds_t1, list, list_update';
 	}
 }
