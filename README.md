@@ -60,6 +60,10 @@ There are some special commands that can be given to T1 corps.
 Someone mentioned that usernames for T2 corps can be from many T1 corporations,
 so we should therefor explore this.
 
+##### Loc type recognition
+Write the parts that checks if a location is a location and if it is a
+npc loc or not. The npc check can be tricked, but it will help filter out
+any clearly non npc names from the lists.
 
 ### Joy
 `joy` is going to be a suite of upgrade tools. Sorting, minmaxing, selling, recording
@@ -71,8 +75,21 @@ and so on. It may also feature market searching tools.
 ##### Everything
 I haven't even started writing this yet :P
 
+##### Min maxer
+Something that would minmax my inventory.
+
+This could also work by taking a set of requirements and then
+optimizing a solution, given those requirements.
+
+##### Auto seller
+Something that could sell stuff automatically.
+
+##### Market listing indexer
+Something to index the market and store some stats.
+
 ##### Market listing fixer
 This would make sure that you have the best `items / listings` ratio possible.
+This would be done by juggling items in inventory.
 
 ### Charm
 
@@ -84,3 +101,24 @@ Charm is going to be my math library.
 ##### Everything
 
 I haven't started this one :P
+
+
+###  Grace
+
+`grace` will be my DB entry. The idea is that all db traffic should go
+through this, not matter what. This way, revisioning and other stuff should be much
+easier. It will also remove the possibility of messing up.
+
+I'm not sure if this is a good idea or not, considering the latency on even a single
+db call. I will have to examine this closly later.
+
+
+
+#### TODO
+
+##### Everything
+
+Haven't started on this one.
+
+##### Integrate into other scripts
+I need to integrate this into other scripts. This will have to happen over time.

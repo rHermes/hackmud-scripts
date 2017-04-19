@@ -152,6 +152,25 @@ function(ctx, a) {
 	}
 
 	//return JSON.stringify(#s.welsh_measles_info.info({process: "personnel", p: "endtheworld", project: "101010"}))
-	return JSON.stringify(#s._q.db({f: {_id: "__liblove_state_abndnd_2f16cn.external_kx4web"}}))
+	//return JSON.stringify(#s._q.db({f: {_id: "__liblove_state_abndnd_2f16cn.external_kx4web"}}))
+
+	// attempt to check things.
+	let mm = [];
+	let dist = {};
+	let solves = #db.f({_type: "__liblove_state_"}).array();
+	for (let solve of solves) {
+		for (let l of solve.locks) {
+			if (l.name !== "l0cket") {
+				continue;
+			}
+			let ph = l.args["l0cket"];
+			dist[ph] = dist[ph] || 0;
+			dist[ph]++;
+			// Now we have the lockl
+		}
+	}
+	return dist;
+	return mm;
+	return solves.length;
 	return outs;
 }
