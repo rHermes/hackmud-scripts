@@ -8,6 +8,7 @@ function(ctx, a) {
 	const HARVEST = #s._q.libpassion_harvest();
 	const HARVEST_T1 = #s._q.libpassion_harvest_t1();
 	const LIST = #s._q.libpassion_list();
+	const LOCS = #s._q.libpassion_locs();
 	
 	switch (a.cmd) {
 		case "list":
@@ -19,7 +20,13 @@ function(ctx, a) {
 		case "cmds_t1":
 			let npcs = LIST.get_npcs();
 			return npcs.t1.map(u => '_q.passion {cmd: "harvest_t1", t: #s.' + u + '}');
+		case "cmds_t1_solve":
+			let locs = LOCS.t1_locs();
+			return locs.map(u => "_q.love {t: #s." + u + "}").slice(0,500);
+		case "prune_t1":
+			let pruned = LOCS.prune_t1();
+			return "Pruned " + pruned + " locations!";
 		default:
-			return 'Available commands are: harvest_t1, cmds_t1, list, list_update';
+			return 'Available commands are: harvest_t1, cmds_t1, list, list_update, prune_t1, cmds_t1_solve';
 	}
 }

@@ -151,5 +151,6 @@ function(ctx, a) {
 		return deco;
 	}
 
+	return JSON.stringify(#s.welsh_measles_info.info({process: "personnel", p: "endtheworld", project: "101010"}))
 	return outs;
 }

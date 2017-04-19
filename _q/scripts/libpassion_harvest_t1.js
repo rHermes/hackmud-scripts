@@ -14,6 +14,7 @@ function(ctx, a) {
 	// Libraries.
 	const LIB = #s._q.lib();
 	const STATE = #s._q.libpassion_state();
+	const LOCS = #s._q.libpassion_locs();
 
 	let HARVEST_T1 = {
 		get_main_cmd: (s, t) => {
@@ -38,7 +39,7 @@ function(ctx, a) {
 		},
 
 		get_pass_opt: (s, t) => {
-			const args = {};
+			let args = {};
 			args[s.ctx.cmd_main] = s.ctx.opt_pass_scrape;
 
 			const raw = LIB.decorrupt(() => {let vk = t.call(args).split('\n'); return [vk[vk.length-1]]})[0];
@@ -49,14 +50,12 @@ function(ctx, a) {
 		},
 
 		get_blog_scrape: (s, t) => {
-			const args = {};
+			let args = {};
 			args[s.ctx.cmd_main] = s.ctx.opt_blog;
 			const raw = LIB.decorrupt(() => t.call(args).map(u => u.split('\n')[1]));
 
 			// Dedup.
-			const lines = Array.from(new Set(raw));
-			lines.sort();
-			//s.ctx.rr = lines;
+			const lines = Array.from(new Set(raw)).sort();
 
 			// Here we list the regexes to run on the raw content.
 			const proj_regexes = [
@@ -77,12 +76,10 @@ function(ctx, a) {
 				/'.*?' -- ([a-z0-9_\-#,\/|.,\(\)]+?) when being /i,
 			];
 
-			const special_regexes = [
+			const spec_regexes = [
 				/core competency with ([a-z0-9_\-#,\/|.,\(\)]+?) is now/i,
 				/ ([a-z0-9_\-#,\/|.,\(\)]+?) personal showcase system\./i,
 			];
-
-			s.ctx.no_match = [];
 
 			let proj_match = new Set();
 			let user_match = new Set();
@@ -90,40 +87,90 @@ function(ctx, a) {
 
 			// now we just loop through the lines and find the matches.
 			for (let line of lines) {
-				let matched = false;
 				const prs = [
 					[proj_regexes, proj_match],
 					[user_regexes,user_match],
-					[special_regexes, spec_match],
+					[spec_regexes, spec_match],
 				];
 
 				for (let i = 0; i < prs.length; i++) {
 					let [regs, mts]= prs[i];
 					for (let re of regs) {
 						const p = line.match(re);
-						if (p) {
-							matched = true;
-							mts.add(p[1]);
-						}
+						if (p) { mts.add(p[1]);	}
 					}
-				}
-
-				if (!matched) {
-					s.ctx.no_match.push(line);
 				}
 			}
 
+			// store the results.
 			s.ctx.scraped_projects = Array.from(proj_match).sort();
 			s.ctx.scraped_users = Array.from(user_match).sort();
 			s.ctx.scraped_special = Array.from(spec_match).sort();
 		},
 
+		get_pass_cmd: (s, t) => {
+			for (let pass of ["p","pass","password"]) {
+				let args = {};
+				args[s.ctx.cmd_main] = s.ctx.opt_main;
+				args[pass] = s.ctx.opt_pass;
+
+				if (t.call(args) !== "No password specified.") {
+					s.ctx.cmd_pass = pass;
+					break;
+				}
+			}
+		},
+
+		get_project_locs: (s, t) => {
+			// If the ouput is an array, it's a good project.
+			s.ctx.good_projects = s.ctx.good_projects || [];
+			s.ctx.bad_projects = s.ctx.bad_projects || [];
+			s.ctx.wip_locs = s.ctx.wip_locs || [];
+
+			s.ctx.i_p = s.ctx.i_p || 0;
+
+			let args = {};
+			args[s.ctx.cmd_main] = s.ctx.opt_main;
+			args[s.ctx.cmd_pass] = s.ctx.opt_pass;
+
+			const pos_projs = [].concat(s.ctx.scraped_projects, s.ctx.scraped_special);
+			while (s.ctx.i_p < pos_projs.length) {
+				args["project"] = pos_projs[s.ctx.i_p];
+				let out = t.call(args);
+
+				// Test if it's a good project:
+				if (out.constructor === Array) {
+					s.ctx.good_projects.push(pos_projs[s.ctx.i_p]);
+					
+					const corrupt_re = /`[a-zA-Z][¡¢£¤¥¦§¨©ª]`/g;
+					let is_first = false;
+					let f = () => {
+						if (!is_first) {
+							is_first = true;
+							return out.filter(u => u.replace(corrupt_re,"$").length > 9);
+						}
+						return t.call(args).filter(u => u.replace(corrupt_re,"$").length > 9);
+					}
+					let locs = LIB.decorrupt(f);
+					s.ctx.wip_locs.push(...locs);
+
+				} else {
+					s.ctx.bad_projects.push(pos_projs[s.ctx.i_p]);
+				}
+				
+				s.ctx.i_p++;
+				if (s.ctx.i_p % 3 == 0) { STATE.store(s); }
+			}
+			let locs = Array.from(new Set(s.ctx.wip_locs)).sort();
+			delete s.ctx.wip_locs;
+			s.ctx.locs_n = s.ctx.locs_n || locs.length;
+
+
+		},
+
 		harvest: (t) => {
 			let s = STATE.create_or_load(t.name, 1);
-			// return LIB.decorrupt(() => t.call().split('\n')); //.split('').join('\u200B');
-			//return JSON.stringify(t.call({}).split("\n"));
-			//return JSON.stringify(LIB.decorrupt(() => t.call({}).split('\n')).join("\n")); //.join('\n').split('').join('\u200B');
-			
+		
 			// First we do is check on the stage of the harvest state.
 			while (s.stage !== "done") {
 				// Here we do the desicion.
@@ -145,8 +192,14 @@ function(ctx, a) {
 						break;
 					case "get_blog_scrape":
 						HARVEST_T1.get_blog_scrape(s, t);
+						s.stage = "get_pass_cmd";
 						break;
 					case "get_pass_cmd":
+						HARVEST_T1.get_pass_cmd(s, t);
+						s.stage = "get_project_locs";
+						break;
+					case "get_project_locs":
+						HARVEST_T1.get_project_locs(s,t);
 						break;
 					default:
 						return "THIS IS NOT A VALID STAGE!";
@@ -155,7 +208,7 @@ function(ctx, a) {
 				STATE.store(s);
 
 				// this is for debugging
-				if (s.stage == "get_blog_scrape") {
+				if (s.stage == "get_project_locs") {
 					if (s.ctx.done_wow) {
 						break;
 					} else {

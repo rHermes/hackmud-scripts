@@ -6,6 +6,7 @@ function(ctx, a) {
 		ez_cmds: ["open", "release", "unlock"],
 		ez_primes: [2,3,5,7,11,13,17,19,21,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97],
 		c_colors: ["red","purple","blue","cyan","green","lime","yellow","orange"],
+		l_keys: ["vc2c7q","uphlaw"],
 
 		get_EZ_CMD: (s,l,t) => {
 			// Check if we are done with this:
@@ -98,6 +99,17 @@ function(ctx, a) {
 				l.ctx.i++;
 			}
 		},
+
+		solve_l0cket: (s,l,t) => {
+			l.ctx.i = l.ctx.i || 0;
+			while (l.ctx.i < T1.l_keys.length) {
+				l.args["l0cket"] = T1.l_keys[l.ctx.i];
+				STATE.call_loc(s, t);
+				if(!STATE.lm(s).endsWith("k3y.")) break;
+
+				l.ctx.i++;
+			}
+		}
 	};
 
 	return T1;
