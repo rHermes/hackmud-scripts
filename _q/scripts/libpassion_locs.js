@@ -23,7 +23,7 @@ function(ctx, a) {
 			
 			const limit = 200;
 			let dead_locs = new Set();
-			let i;
+			let i = 0;
 			for (let loc of locs.locs) {
 				if (LOCS.is_dead(loc)) {
 					dead_locs.add(loc);
@@ -34,7 +34,7 @@ function(ctx, a) {
 					break;
 				}
 			}
-
+			
 			#db.u1({_id: id}, {$pullAll: {locs: Array.from(dead_locs)}});
 			return dead_locs.size;
 		},
