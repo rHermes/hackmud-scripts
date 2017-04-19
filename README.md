@@ -50,16 +50,11 @@ libraries.
 
 #### TODO
 
-##### DB integration.
-Right now the database integration is kind of weak. Implement a more state like
-system, so that we can run it against corps in a more systematic manner.
-
 ##### Recognize corp type
 Make a huristics for recognize what kind of corp we are looking at.
 
 ##### T1 special commands
 There are some special commands that can be given to T1 corps.
-
 
 ##### Cross username support
 Someone mentioned that usernames for T2 corps can be from many T1 corporations,
@@ -79,10 +74,13 @@ I haven't even started writing this yet :P
 ##### Market listing fixer
 This would make sure that you have the best `items / listings` ratio possible.
 
-##### General purpose sys.upgrades reorder.
-Something that would provide the minimal amount of reorder moves to get it into
-a sorted state. This will involve finding the longest increasing subsequence
-and then ordering everything else around that.
+### Charm
 
-I've attempted this before, but my implementation of the actual moving around was
-buggy.
+Charm is going to be my math library.
+
+
+#### TODO
+
+##### Everything
+
+I haven't started this one :P

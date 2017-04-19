@@ -18,11 +18,11 @@ function(ctx, a) {
 		case "harvest_t1":
 			return HARVEST_T1.harvest(a.t);
 		case "cmds_t1":
-			let npcs = LIST.get_npcs();
-			return npcs.t1.map(u => '_q.passion {cmd: "harvest_t1", t: #s.' + u + '}');
+			return LIST.get_npcs().t1.map(u => '_q.passion {cmd: "harvest_t1", t: #s.' + u + '}');
 		case "cmds_t1_solve":
-			let locs = LOCS.t1_locs();
-			return locs.map(u => "_q.love {t: #s." + u + "}").slice(0,500);
+			return LOCS.t1_locs().map(u => "_q.love {t: #s." + u + "}").slice(0,500);
+		case "cmds_t1_count":
+			return "We have " + LOCS.t1_locs().length + " T1 locs in the db.";
 		case "prune_t1":
 			let pruned = LOCS.prune_t1();
 			return "Pruned " + pruned + " locations!";

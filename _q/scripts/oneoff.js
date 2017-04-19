@@ -151,6 +151,7 @@ function(ctx, a) {
 		return deco;
 	}
 
-	return JSON.stringify(#s.welsh_measles_info.info({process: "personnel", p: "endtheworld", project: "101010"}))
+	//return JSON.stringify(#s.welsh_measles_info.info({process: "personnel", p: "endtheworld", project: "101010"}))
+	return JSON.stringify(#s._q.db({f: {_id: "__liblove_state_abndnd_2f16cn.external_kx4web"}}))
 	return outs;
 }

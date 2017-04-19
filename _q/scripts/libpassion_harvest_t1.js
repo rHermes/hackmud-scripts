@@ -2,10 +2,34 @@ function(ctx, a) {
 	// This is for harvesting ALL addresses from a T1 corp.
 
 	// Specials:
-	// public_profile -- need to specify user
-	// empl_pages
 
+	// Seems to always be in pairs of 2
+
+	// = "Users" =
+	// public_profile 
+	// public_profiles
+	// empl_pages 
+	// profiles
+	// p33ps
+
+	// Ap_calypse
+
+	// Listers
 	// giant_spidr
+	// W3rlD3NDER
+	// ragnaroxx.sh
+	// Vy_for_russ
+	// delete_me_first
+	// LUNARLANDER_01.11.bat
+	// e)(ecution0r
+	// Free_BFG
+	// dev_nul
+	// qw_stop
+	// forgetme_nt
+	// ende.exe
+	// H0meEntert4inment
+	// omegabyte_03.23_final_final
+	// thefloood
 	// Welcome to the giant_spidr project page. For a list of members add list: true
 
 
@@ -60,7 +84,7 @@ function(ctx, a) {
 			// Here we list the regexes to run on the raw content.
 			const proj_regexes = [
 				/ of project ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
-				/ release date for ([a-z0-9_\-#,\/|.,\(\)]+?)\./i,
+				/ release date for ([a-z0-9_\-#,\/|.,\(\)]+?)\. /i,
 				/Work continues on ([a-z0-9_\-#,\/|.,\(\)]+?),/i,
 				/ new developments on ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
 				/ Look for ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
@@ -164,7 +188,64 @@ function(ctx, a) {
 			let locs = Array.from(new Set(s.ctx.wip_locs)).sort();
 			delete s.ctx.wip_locs;
 			s.ctx.locs_n = s.ctx.locs_n || locs.length;
+			LOCS.add_t1_locs(locs);
+		},
 
+		// TODO(rHermes): There is a lot of overlapp between this and the above, maybe find a
+		// way to abstract it, so we get less code.
+
+		// TODO(rHermes): There seems to be some way to determine if a project could ever be a
+		// Special project. For the member onces the list certain seems short. This could save
+		// time.
+
+		// TODO(rHermes): There seems to be exactly 2 special commands for each corp. This means
+		// that once we have seen 2 we can terminate. This early exit will be benifitial in many
+		// cases
+		get_special_locs: (s,t) => {
+			s.ctx.i_s = s.ctx.i_s || 0;
+			s.ctx.wip_spec_locs = s.ctx.wip_spec_locs || [];
+
+			s.ctx.good_specs = s.ctx.good_specs|| [];
+
+			let args = {
+				list: true
+			};
+
+			const pos_specs = [].concat(s.ctx.scraped_projects, s.ctx.scraped_special);
+
+			while (s.ctx.i_s < pos_specs.length) {
+				args[s.ctx.cmd_main] = pos_specs[s.ctx.i_s];
+				let out = t.call(args);
+
+				// Test if it's a good project:
+				if (out.constructor === Array) {
+					s.ctx.good_specs.push(pos_specs[s.ctx.i_s]);
+
+					// we know we got a lister, since we got a list of locs.
+					const corrupt_re = /`[a-zA-Z][¡¢£¤¥¦§¨©ª]`/g;
+					
+					let is_first = false;
+					let f = () => {
+						if (!is_first) {
+							is_first = true;
+							return out.filter(u => u.replace(corrupt_re,"$").length > 9);
+						}
+						return t.call(args).filter(u => u.replace(corrupt_re,"$").length > 9);
+					}
+					let locs = LIB.decorrupt(f);
+					s.ctx.wip_spec_locs.push(...locs);
+				} else if (out.split('\n').length == 1) {
+					// we know we got a member select.
+					s.ctx.good_specs.push(pos_specs[s.ctx.i_s]);
+				}
+				
+				s.ctx.i_s++;
+				if (s.ctx.i_s % 3 == 0) { STATE.store(s); }
+			}
+			let locs = Array.from(new Set(s.ctx.wip_spec_locs)).sort();
+			delete s.ctx.wip_spec_locs;
+			s.ctx.spec_locs_n = s.ctx.spec_locs_n || locs.length;
+			LOCS.add_t1_locs(locs);
 
 		},
 
@@ -200,21 +281,17 @@ function(ctx, a) {
 						break;
 					case "get_project_locs":
 						HARVEST_T1.get_project_locs(s,t);
+						s.stage = "get_special_locs";
+						break;
+					case "get_special_locs":
+						HARVEST_T1.get_special_locs(s,t);
+						s.stage = "done"
 						break;
 					default:
 						return "THIS IS NOT A VALID STAGE!";
 				}
 
 				STATE.store(s);
-
-				// this is for debugging
-				if (s.stage == "get_project_locs") {
-					if (s.ctx.done_wow) {
-						break;
-					} else {
-						s.ctx.done_wow = true;
-					}
-				}
 			}
 			return s;
 		}

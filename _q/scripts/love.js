@@ -14,6 +14,6 @@ function(ctx, a) {
 
 		return {ts: end-start, s: kiwi};
 	} catch (e) {
-		return "THERE WAS AN ERROR!";
+		return "THERE WAS AN ERROR: " + e;
 	}
 }

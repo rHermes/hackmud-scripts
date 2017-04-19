@@ -6,7 +6,9 @@ function(ctx, a) {
 		ez_cmds: ["open", "release", "unlock"],
 		ez_primes: [2,3,5,7,11,13,17,19,21,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97],
 		c_colors: ["red","purple","blue","cyan","green","lime","yellow","orange"],
-		l_keys: ["vc2c7q","uphlaw"],
+		l_keys_v1: ["vc2c7q","uphlaw", "cmppiq", "tvfkyq","6hh8xw"],
+		l_keys_v2: ["4jitu5","hc3b69","5c7e1r","nfijix","vthf6e","lq09tg"],
+		l_keys_v3: ["7oxb1b","54r1cg","afgny5"],
 
 		get_EZ_CMD: (s,l,t) => {
 			// Check if we are done with this:
@@ -102,13 +104,18 @@ function(ctx, a) {
 
 		solve_l0cket: (s,l,t) => {
 			l.ctx.i = l.ctx.i || 0;
-			while (l.ctx.i < T1.l_keys.length) {
-				l.args["l0cket"] = T1.l_keys[l.ctx.i];
+			let kys = [].concat(T1.l_keys_v1, T1.l_keys_v2, T1.l_keys_v3);
+			while (l.ctx.i < kys.length) {
+				l.args["l0cket"] = kys[l.ctx.i];
 				STATE.call_loc(s, t);
-				if(!STATE.lm(s).endsWith("k3y.")) break;
+				if(!STATE.lm(s).endsWith("k3y.")) {
+					return;
+				}
 
 				l.ctx.i++;
 			}
+			STATE.store(s);
+			throw new Error("DIDN't SOLVE l0cket!");
 		}
 	};
 
