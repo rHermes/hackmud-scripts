@@ -45,7 +45,7 @@ against active defences. The noticeable examples are `acc_nt` and `sn_w_glock`.
 ### Passion
 
 The `passion` harvester is meant to be a general purpose harvester for all
-corp tiers. The main script `passion` is just a frontend for the `liblove`
+corp tiers. The main script `passion` is just a frontend for the `libpassion`
 libraries.
 
 #### TODO
@@ -122,3 +122,29 @@ Haven't started on this one.
 
 ##### Integrate into other scripts
 I need to integrate this into other scripts. This will have to happen over time.
+
+
+### Care
+
+`care` is the missing console.log, but better. On creation it gives you a run_id and
+an object, which you can use to store output in the db. You can set parameters like
+"buffered" for buffered output before saving and more.
+
+This logger will also have several levels, that you can filter on in each run.
+
+Might also include timing possibilties, but this is not confirmed. It will also be
+able to check if it is being called as a scriptor or not.
+
+#### TODO
+
+##### Everything
+
+Haven't even started this.
+
+### Risky
+`risky` is a dream. A dream about writing a RISC-V emulator in js. Things I want to add to it:
+
++ 128-bit support
++ All standard extensions.
+
++ Ability to call scriptors.

@@ -87,7 +87,9 @@ function(ctx, a) {
 				/ release date for ([a-z0-9_\-#,\/|.,\(\)]+?)\. /i,
 				/Work continues on ([a-z0-9_\-#,\/|.,\(\)]+?),/i,
 				/ new developments on ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
+				/New developments with ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
 				/ Look for ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
+				/ Update was just pushed to ([a-z0-9_\-#,\/|.,\(\)]+?)$/i,
 				/ for the new ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
 				/ initial launch of the ([a-z0-9_\-#,\/|.,\(\)]+?) /i,
 				/ for ([a-z0-9_\-#,\/|.,\(\)]+?) since it was/i,
@@ -183,6 +185,7 @@ function(ctx, a) {
 				}
 				
 				s.ctx.i_p++;
+
 				if (s.ctx.i_p % 3 == 0) { STATE.store(s); }
 			}
 			let locs = Array.from(new Set(s.ctx.wip_locs)).sort();
@@ -201,25 +204,32 @@ function(ctx, a) {
 		// TODO(rHermes): There seems to be exactly 2 special commands for each corp. This means
 		// that once we have seen 2 we can terminate. This early exit will be benifitial in many
 		// cases
+
+		// The above seems to be wrong.
 		get_special_locs: (s,t) => {
 			s.ctx.i_s = s.ctx.i_s || 0;
 			s.ctx.wip_spec_locs = s.ctx.wip_spec_locs || [];
-
-			s.ctx.good_specs = s.ctx.good_specs|| [];
+			s.ctx.spec_lister = s.ctx.spec_lister || [];
+			s.ctx.spec_members = s.ctx.spec_members || [];
 
 			let args = {
 				list: true
 			};
 
-			const pos_specs = [].concat(s.ctx.scraped_projects, s.ctx.scraped_special);
+			const pos_specs = Array.from(new Set([].concat(s.ctx.bad_projects, s.ctx.scraped_special, s.ctx.good_projects)));
 
 			while (s.ctx.i_s < pos_specs.length) {
+				/*
+				if (s.ctx.spec_lister && s.ctx.spec_members) {
+					break;
+				}
+				*/
 				args[s.ctx.cmd_main] = pos_specs[s.ctx.i_s];
 				let out = t.call(args);
 
 				// Test if it's a good project:
 				if (out.constructor === Array) {
-					s.ctx.good_specs.push(pos_specs[s.ctx.i_s]);
+					s.ctx.spec_lister.push(pos_specs[s.ctx.i_s]);
 
 					// we know we got a lister, since we got a list of locs.
 					const corrupt_re = /`[a-zA-Z][¡¢£¤¥¦§¨©ª]`/g;
@@ -235,8 +245,7 @@ function(ctx, a) {
 					let locs = LIB.decorrupt(f);
 					s.ctx.wip_spec_locs.push(...locs);
 				} else if (out.split('\n').length == 1) {
-					// we know we got a member select.
-					s.ctx.good_specs.push(pos_specs[s.ctx.i_s]);
+					s.ctx.spec_members.push(pos_specs[s.ctx.i_s]);
 				}
 				
 				s.ctx.i_s++;
@@ -246,7 +255,6 @@ function(ctx, a) {
 			delete s.ctx.wip_spec_locs;
 			s.ctx.spec_locs_n = s.ctx.spec_locs_n || locs.length;
 			LOCS.add_t1_locs(locs);
-
 		},
 
 		harvest: (t) => {
@@ -286,6 +294,7 @@ function(ctx, a) {
 					case "get_special_locs":
 						HARVEST_T1.get_special_locs(s,t);
 						s.stage = "done"
+						s.ended = Date.now();
 						break;
 					default:
 						return "THIS IS NOT A VALID STAGE!";

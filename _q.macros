@@ -38,3 +38,5 @@ pt1p
 passion {cmd: "prune_t1"}
 pt1cs
 passion {cmd: "cmds_t1_solve"}
+pt1c
+passion {cmd: "cmds_t1"}

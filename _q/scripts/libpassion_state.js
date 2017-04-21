@@ -1,7 +1,7 @@
 function(ctx, a) {
 	// This library deals with any kind state used during harvesting.
 	// It also includes some vanity functions, to make life easier.
-	
+
 	let STATE = {
 		DB_PREFIX: "__libpassion_state_",
 
