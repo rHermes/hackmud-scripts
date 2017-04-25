@@ -7,7 +7,8 @@ function(ctx, a) {
 	const create_t1_harvest_stats = () => {
 		// Get t1
 		const t1_corps = #db.f({_type: STATE.DB_PREFIX,
-			stage: "done"
+			stage: "done",
+			tier: 1
 		}).array() || [];
 
 
@@ -35,7 +36,7 @@ function(ctx, a) {
 			}
 		}
 
-		// Now we convert those value to [{k: "ss", v: "ss"}]format
+		// Now we convert those value to [{key: "ss", val: "ss"}]format
 		let inst_kv = {};
 		for (let k1 in inst) {
 			if (inst.hasOwnProperty(k1)) {
@@ -53,6 +54,64 @@ function(ctx, a) {
 		inst_kv["_version"] = 2;
 		return inst_kv;
 	}
+
+	// Create a list of t1_user names
+	const get_t1_usernames = () => {
+		let stats = #db.f({_type: "__libpassion_t1_harvest_stats", _version: 2}).array();
+
+		let merged_users = stats.reduce((a,c) => {
+			for (let p of c.scraped_users) {
+				a[p.key] = a[p.key] || 0;
+				a[p.key] += p.val;
+			}
+			return a;
+		}, {});
+		
+		let merged_users_list = [];
+		for (let k1 in merged_users) {
+			if (merged_users.hasOwnProperty(k1)) {
+				merged_users_list.push(k1);
+			}
+		}
+
+		merged_users_list.sort((a,b) => merged_users[b] - merged_users[a]);
+		
+		return {
+			mu: merged_users,
+			mul: merged_users_list
+		};
+	};
+	
+
+
+	const analyze_t1_harvest_stats = () => {
+		let stats = #db.f({_type: "__libpassion_t1_harvest_stats", _version: 2}).array();
+
+		let merged_users = stats.reduce((a,c) => {
+			for (let p of c.scraped_users) {
+				a[p.key] = a[p.key] || 0;
+				a[p.key] += p.val;
+			}
+			return a;
+		}, {});
+		
+		let merged_users_list = [];
+		for (let k1 in merged_users) {
+			if (merged_users.hasOwnProperty(k1)) {
+				merged_users_list.push(k1);
+			}
+		}
+
+		merged_users_list.sort((a,b) => merged_users[b] - merged_users[a]);
+		
+		return {
+			mu: merged_users,
+			mul: merged_users_list
+		};
+		return merged_users;
+
+		return stats.map(u => u._id);
+	};
 	
 	const t1_prune_total = () => {
 		// First, if we either find or create the sn
@@ -67,16 +126,23 @@ function(ctx, a) {
 		// Now we just keep on looping through check and save.
 		while (sn.check.length > 0) {
 			if (Date.now() - st_time > 4000) {
+				#db.u1({_id: sn._id},sn);
 				return "Still got " + sn.check.length + " to go! (" + sn.prune.length + " pruned so far)";
 			}
 			// we do this 100 at a time.
 			sn.prune.push(...sn.check.splice(0,100).filter(LOCS.is_dead));
 			#db.u1({_id: sn._id},sn);
 		}
-
 		// Now we just prune
-		#db.u1({_id: "t1_locs"}, {$pullAll: {locs: sn.prune}});
-
+		while (sn.prune.length > 0) {
+			if (Date.now() - st_time > 4000) {
+				#db.u1({_id: sn._id},sn);
+				return "Still got " + sn.prune.length + " to remove from db!";
+			}
+			#db.u1({_id: "t1_locs"}, {$pullAll: {locs: sn.prune.splice(0,100)}});
+			#db.u1({_id: sn._id},sn);
+		}
+		
 		// Remove the state
 		#db.r({_id: sn._id});
 	};
@@ -86,7 +152,11 @@ function(ctx, a) {
 	#db.i(stats);
 	return stats.spec_members;
 	*/
-	//return t1_prune_total();
+	/*
+	let ret = analyze_t1_harvest_stats();
+	return ret;
+*/
+	// return t1_prune_total();
 	/*
 	#db.i(stats);
 	return stats.good_specs;

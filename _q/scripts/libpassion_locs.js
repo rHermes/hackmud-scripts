@@ -51,8 +51,24 @@ function(ctx, a) {
 			}
 		},
 
+		add_t2_locs: (l) => {
+			// Insert locs into db.
+			let sn = #db.u1({_id: "t2_locs"}, {	$addToSet: {locs: {$each: l}}})[0];
+			if (!sn.n) {
+				#db.i({_id: "t2_locs", _k: "__locs", locs: l});
+			}
+		},
+
 		t1_locs: () => {
 			const locs = #db.f({_id: "t1_locs"}).first();
+			if (!locs) {
+				return [];
+			}
+			return locs.locs;
+		},
+
+		t2_locs: () => {
+			const locs = #db.f({_id: "t2_locs"}).first();
 			if (!locs) {
 				return [];
 			}

@@ -5,34 +5,6 @@ function(ctx, a) {
 
 	// Seems to always be in pairs of 2
 
-	// = "Users" =
-	// public_profile 
-	// public_profiles
-	// empl_pages 
-	// profiles
-	// p33ps
-
-	// Ap_calypse
-
-	// Listers
-	// giant_spidr
-	// W3rlD3NDER
-	// ragnaroxx.sh
-	// Vy_for_russ
-	// delete_me_first
-	// LUNARLANDER_01.11.bat
-	// e)(ecution0r
-	// Free_BFG
-	// dev_nul
-	// qw_stop
-	// forgetme_nt
-	// ende.exe
-	// H0meEntert4inment
-	// omegabyte_03.23_final_final
-	// thefloood
-	// Welcome to the giant_spidr project page. For a list of members add list: true
-
-
 	// Check for scrape.
 
 	// Libraries.
