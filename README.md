@@ -56,10 +56,6 @@ Make a huristics for recognize what kind of corp we are looking at.
 ##### T1 special commands
 There are some special commands that can be given to T1 corps.
 
-##### Cross username support
-Someone mentioned that usernames for T2 corps can be from many T1 corporations,
-so we should therefor explore this.
-
 ##### Loc type recognition
 Write the parts that checks if a location is a location and if it is a
 npc loc or not. The npc check can be tricked, but it will help filter out
