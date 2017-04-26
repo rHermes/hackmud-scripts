@@ -147,11 +147,11 @@ function(ctx, a) {
 		#db.r({_id: sn._id});
 	};
 
-	/*
+	
 	let stats = create_t1_harvest_stats();
 	#db.i(stats);
 	return stats.spec_members;
-	*/
+	
 	/*
 	let ret = analyze_t1_harvest_stats();
 	return ret;

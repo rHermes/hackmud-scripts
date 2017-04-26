@@ -35,9 +35,6 @@ function(ctx, a) {
 	};
 
 	let HARVEST_T2 = {
-		// TODO(rHermes): make a better system for this
-		// TODO(rHermes): Figure out if the same corps have the same nav commands
-		// all the time.
 		get_main_cmd: (s,t) => {
 			s.ctx.pos_usernames = s.ctx.pos_usernames || get_t1_usernames();
 			s.ctx.pos_usernames_i = s.ctx.pos_usernames_i || 0;
@@ -141,6 +138,7 @@ function(ctx, a) {
 						s.ctx.wip_locs.push(...locs);
 					
 						s.ctx.order_ids_j++;
+					  STATE.store(s);	
 				}
 
 				s.ctx.order_ids_j = 0;
@@ -174,6 +172,7 @@ function(ctx, a) {
 					case "get_locs":
 						HARVEST_T2.get_locs(s, t);
 						s.stage = "done";
+						s.ended = Date.now();
 						break;
 					default:
 						return "THIS IS NOT A VALID STAGE!";

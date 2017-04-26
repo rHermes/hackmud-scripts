@@ -8,6 +8,7 @@ function(ctx, a) {
 	const HARVEST = #s._q.libpassion_harvest();
 	const HARVEST_T1 = #s._q.libpassion_harvest_t1();
 	const HARVEST_T2 = #s._q.libpassion_harvest_t2();
+	const HARVEST_T3 = #s._q.libpassion_harvest_t3();
 	const LIST = #s._q.libpassion_list();
 	const LOCS = #s._q.libpassion_locs();
 	
@@ -20,6 +21,8 @@ function(ctx, a) {
 			return HARVEST_T1.harvest(a.t);
 		case "harvest_t2":
 			return HARVEST_T2.harvest(a.t);
+		case "harvest_t3":
+			return HARVEST_T3.harvest(a.t);
 		case "cmds_t1":
 			return LIST.get_npcs().t1.map(u => '_q.passion {cmd: "harvest_t1", t: #s.' + u + '}');
 		case "cmds_t2":

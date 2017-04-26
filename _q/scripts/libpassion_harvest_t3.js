@@ -6,7 +6,6 @@ function(ctx, a) {
 	const LIB = #s._q.lib();
 	const STATE = #s._q.libpassion_state();
 	const LOCS = #s._q.libpassion_locs();
-	const QR = #s._q.qrv2();
 
 
 	// TEMP SOLUTION TILL WE GET THIS ALL UNDER WRAPS:
@@ -35,152 +34,195 @@ function(ctx, a) {
 	};
 
 	let HARVEST_T3 = {
-		// TODO(rHermes): make a better system for this
-		// TODO(rHermes): Figure out if the same corps have the same nav commands
-		// all the time.
-		get_main_cmd: (s,t) => {
+		get_user_pins: (s,t) => {
 			s.ctx.pos_usernames = s.ctx.pos_usernames || get_t1_usernames();
 			s.ctx.pos_usernames_i = s.ctx.pos_usernames_i || 0;
+			s.ctx.cur_pin = s.ctx.cur_pin || [0,0,0,0];
+			s.ctx.user_pins = s.ctx.user_pins || [];
 
-			// This saves us at most one call, but the science behind it might
-			// lead to bigger gains in other application.
-			const pos_nav_commands = [
-				"navigation", "process", "command", "action", "entry", "open", "show", "cmd", "nav", "get", "see"
-			];
-			
+			let iii = 0;
+
+			let args = {};
 			while (s.ctx.pos_usernames_i < s.ctx.pos_usernames.length) {
-				// If it's less than 4 lines, then it's not a valid username.
 				const uname = s.ctx.pos_usernames[s.ctx.pos_usernames_i];
-				let out = t.call({username: uname});
-					if (out.split('\n').length > 3) {
-						// A good one.
-						const corrupt_re = /`[a-zA-Z][¡¢£¤¥¦§¨©ª]`/g;
-						let navr = out.split('\n')[2].replace(corrupt_re,"$").slice(2,-1);
-						
-						const pos_cmds = pos_nav_commands.filter(u => 
-							(u.length == navr.length) && (navr.split('').every((v,i) => v == "$" || v == u[i]))
-						);
+				args["username"] = uname;
+				args["pin"] = s.ctx.cur_pin.join("");
 
-						if (pos_cmds.length !== 1) {
-							throw new Error("No possible command for: " + navr);
-						}
+				const corrupt_re = /`[a-zA-Z][¡¢£¤¥¦§¨©ª]`/g;
+				let out = t.call(args);
+				let os = out.split('\n');
 
-						s.ctx.cmd_main = pos_cmds[0];
-						break;
-					}
+				if (os.length > 6) {
+					// Good combination
+					s.ctx.user_pins.push({
+						user: args["username"],
+						pin: args["pin"]
+					});
+
+					s.ctx.cur_pin = [0,0,0,0];
 					s.ctx.pos_usernames_i++;
+					s.stage = "get_cal_ids";
+					return;
+				} else if (os[3].replace(corrupt_re,"$").length !== 14) {
+					// This is to long to be correct?
+					s.ctx.pos_usernames_i++;
+				} else {
+					// now update the pin.
+					s.ctx.cur_pin[3]++;
+					for (let i = 3; i > 0; i--) {
+						if (s.ctx.cur_pin[i] == 10) {
+							s.ctx.cur_pin[i-1]++;
+							s.ctx.cur_pin[i] = 0;
+						}
+					}
+					if (s.ctx.cur_pin[0] == 10) {
+						throw new Error("We are at the end!");
+					}
+				}
+				iii++;
+				if (iii % 10 == 0) { STATE.store(s)};
+			}
+			s.stage = "done";	
+		},
+
+		get_cal_ids: (s, t) => {
+			const parse_cal = (o) => {
+				let os = o.split('\n');
+				let head = os[0];
+				let year = os[2];
+				let b = os.slice(3).map(u => u.split(''));
+
+				let days = [];
+				// I assume it's always 3 x 4 grid.
+				for (let i = 0; i < 3; i++) {
+					for (let j = 0; j < 4; j++) {
+						let day = b[i*5].slice(2+9*j,2+9*j+3).join('');
+						let ids = b.slice(i*5 + 1, i*5 + 5).map(u => u.slice(2+9*j,2+9*j+6).join('')).filter(u => u != "      ");
+
+						if (ids.length > 0) {
+							days.push({
+								day: day,
+								ids: ids,
+								x: j,
+								y: i
+							});
+						}
+					}
+				}
+				return {
+					head: head,
+					year: year,	
+					days: days
+				};
+			};
+
+			let cuser = s.ctx.user_pins[s.ctx.user_pins.length-1];
+			// init
+			cuser.cal_pages = cuser.cal_pages || [];
+			cuser.cal_d = cuser.cal_d || -1860;
+			
+			// we are always solving for the last known user.
+			let args = {
+				username: cuser.user,
+				pin: cuser.pin,
+				perform: "flow"
+			};
+
+			while (cuser.cal_d < 120) {
+				args["d"] = cuser.cal_d;
+
+				let rawout = t.call(args);
+				const color_re = /`[a-zA-Z](.*?)`/g;
+				let cleanout = rawout.replace(color_re, "$1");
+
+				let pc = parse_cal(cleanout);
+
+				if (pc.days.length > 0) {
+					cuser.cal_pages.push(pc);
+					if(!cuser.first_view_page) {
+						cuser.first_view_page = cuser.cal_d;
+					}
+				}
+				
+				cuser.cal_d += 12;
+				STATE.store(s);
 			}
 		},
 
-		get_qr_codes: (s,t) => {
-			s.ctx.order_ids = s.ctx.order_ids || [];
+		get_cal_data: (s, t) => {
+			let cuser = s.ctx.user_pins[s.ctx.user_pins.length-1];
 			
-			let args = {};
-			args[s.ctx.cmd_main] = "order_qrs";
+			// init
+			cuser.cal_pages_i = cuser.cal_pages_i || 0;
 
-			while (s.ctx.pos_usernames_i < s.ctx.pos_usernames.length) {
-				// If it's less than 4 lines, then it's not a valid username.
-				const uname = s.ctx.pos_usernames[s.ctx.pos_usernames_i];
-				args["username"] = uname;
+			cuser.cal_ids_data = cuser.cal_ids_data || [];
+			
+			cuser.cal_ids_arr = cuser.cal_ids_arr || [].concat(...cuser.cal_pages.map(u => [].concat(...u.days.map(v => v.ids))));
+			cuser.cal_ids_arr_i = cuser.cal_ids_arr_i || 0;
+
+			// we are always solving for the last known user.
+			let args = {
+				username: cuser.user,
+				pin: cuser.pin,
+				perform: "flow"
+			};
+
+			while (cuser.cal_ids_arr_i < cuser.cal_ids_arr.length) {
+				// let page = cuser.cal_pages[cuser.cal_pages_i];
+
+				args["i"] = cuser.cal_ids_arr[cuser.cal_ids_arr_i];
 
 				let out = t.call(args);
 
-				// If it's not array, its a valid username.
-				if (out.constructor !== Array) {
-					s.ctx.pos_usernames_i++;
-					continue;
-				}
+				cuser.cal_ids_data.push({
+					id: args["i"],
+					out: out
+				});
 
-				let oids = [];
 
-				for (let raw_qr of out) {
-				// Cut out anything that is short.
-					if (raw_qr.length < 20) {
-						continue;
-					}
-					let qra = QR.str_to_arr(raw_qr.split('\n').filter(u => u).join('\n'));
-					let payloads = QR.get_data(qra);
-					for (let payload of payloads) {
-						let idm = payload.match(/"id":"([0-9a-z]+?)"/);
-						if (idm !== null) {
-							oids.push(idm[1]);
-						}
-					}
-				}
-				s.ctx.order_ids.push({user: uname, ids: oids});
-
-				s.ctx.pos_usernames_i++;
-				if (s.ctx.pos_usernames_i % 3 == 0) { STATE.store(s); }
+				cuser.cal_ids_arr_i++;
+				STATE.store(s);
 			}
-		},
-
-		get_locs: (s,t) => {
-			s.ctx.locs = s.ctx.locs || [];
-			s.ctx.order_ids_i = s.ctx.order_ids_i || 0;
-			s.ctx.wip_locs = s.ctx.wip_locs || [];
-
-			let args = {};
-			args[s.ctx.cmd_main] = "cust_service";
-			
-			while (s.ctx.order_ids_i < s.ctx.order_ids.length) {
-				let oid = s.ctx.order_ids[s.ctx.order_ids_i];
-				s.ctx.order_ids_j = 	s.ctx.order_ids_j || 0;
-
-				args["username"] = oid.user;
-				
-				while (	s.ctx.order_ids_j < oid.ids.length) {
-						args["order_id"] = oid.ids[s.ctx.order_ids_j];
-
-						let f = () => [t.call(args).split('\n')[1]]
-						let out = t.call(args);
-
-						if (out.split('\n').length !== 3) {
-							throw new Error("There was not 3 lines!");
-						}
-						let locs = LIB.decorrupt(f).join("").split(":")[1].split(" ").filter(u => u);
-						s.ctx.wip_locs.push(...locs);
-					
-						s.ctx.order_ids_j++;
-				}
-
-				s.ctx.order_ids_j = 0;
-				s.ctx.order_ids_i++;
-				STATE.store(s);	
-			}
-			let locs = Array.from(new Set(s.ctx.wip_locs)).sort();
-			delete s.ctx.wip_locs;
-			s.ctx.locs_n = s.ctx.locs_n || locs.length;
-			LOCS.add_t2_locs(locs);
 		},
 
 		harvest: (t) => {
-			let s = STATE.create_or_load(t.name, 2);
-			
+			let s = STATE.create_or_load(t.name, 3);
+			/*
+			let cuser = s.ctx.user_pins[s.ctx.user_pins.length-1];
+			return #s.ultrahacker25.base64({encrypt: true, msg: JSON.stringify(cuser.cal_ids_data)});
+			*/
+			let frst = true;
 			// First we do is check on the stage of the harvest state.
 			while (s.stage !== "done") {
 				// Here we do the desicion.
 				switch (s.stage) {
 					case "init":
-						s.stage = "get_main_cmd";
+						s.stage = "get_user_pins";
 						break;
-					case "get_main_cmd":
-						HARVEST_T3.get_main_cmd(s, t);
-						s.stage = "get_qr_codes";
+					case "get_user_pins":
+						HARVEST_T3.get_user_pins(s, t);
 						break;
-					case "get_qr_codes":
-						HARVEST_T3.get_qr_codes(s, t);
-						s.stage = "get_locs";
+					case "get_cal_ids":
+						HARVEST_T3.get_cal_ids(s, t);
+						s.stage = "get_cal_data";
 						break;
-					case "get_locs":
-						HARVEST_T3.get_locs(s, t);
-						s.stage = "done";
+					case "get_cal_data":
+						HARVEST_T3.get_cal_data(s, t);
+						s.stage = "get_user_pins";
 						break;
 					default:
 						return "THIS IS NOT A VALID STAGE!";
 				}
-				
+				if (s.stage == "get_cal_data") {
+					if (!frst) {
+						break
+					} else {
+						frst = false;
+					}
+				}
 				STATE.store(s);
 			}
+
 			return s;
 		}
 	};
